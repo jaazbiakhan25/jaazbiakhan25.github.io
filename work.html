@@ -272,6 +272,152 @@ nav.primary a.active{
   .grid{grid-template-columns:1fr;}
 }
 
+
+/* ---------- CONTACT OVERLAY ---------- */
+.cm-backdrop{
+  position:fixed; inset:0;
+  background: rgba(43,39,31,0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+  z-index:100;
+}
+.cm-backdrop.open{ display:flex; }
+
+.cm-panel{
+  background: var(--cream);
+  border-radius:24px;
+  width:100%;
+  max-width:520px;
+  padding:40px;
+  box-shadow: 0 24px 60px rgba(43,39,31,0.22);
+  max-height:90vh;
+  overflow-y:auto;
+  animation: cmRise 0.35s cubic-bezier(0.19,1,0.22,1);
+}
+@keyframes cmRise{
+  from{ opacity:0; transform: translateY(14px); }
+  to{ opacity:1; transform: translateY(0); }
+}
+
+.cm-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:6px;
+}
+.cm-title{
+  font-family:'Playfair Display', serif;
+  font-weight:700;
+  font-size:27px;
+  line-height:1.2;
+  color: var(--ink);
+}
+.cm-sub{
+  font-size:15px;
+  line-height:1.6;
+  color: var(--muted);
+  margin-bottom:26px;
+}
+.cm-close{
+  background: var(--pill);
+  border:none;
+  width:38px; height:38px;
+  border-radius:50%;
+  font-size:19px;
+  line-height:1;
+  color: var(--ink);
+  cursor:pointer;
+  flex-shrink:0;
+  transition: background 0.25s ease;
+}
+.cm-close:hover{ background: var(--pill-hover); }
+
+.cm-field{ margin-bottom:16px; }
+.cm-field label{
+  display:block;
+  font-size:13px;
+  font-weight:600;
+  letter-spacing:0.04em;
+  text-transform:uppercase;
+  color: var(--muted);
+  margin-bottom:8px;
+}
+.cm-field input,
+.cm-field textarea{
+  width:100%;
+  font-family:'Inter', sans-serif;
+  font-size:16px;
+  color: var(--ink);
+  background: var(--pill);
+  border:1px solid transparent;
+  border-radius:14px;
+  padding:13px 16px;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.cm-field textarea{
+  min-height:132px;
+  resize:vertical;
+  line-height:1.55;
+}
+.cm-field input:focus,
+.cm-field textarea:focus{
+  outline:none;
+  background: var(--cream);
+  border-color: var(--ink);
+}
+
+.cm-actions{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-top:22px;
+  flex-wrap:wrap;
+}
+.cm-send{
+  font-family:'Inter', sans-serif;
+  font-weight:500;
+  font-size:16px;
+  background: var(--ink);
+  color: var(--cream);
+  border:none;
+  padding:14px 30px;
+  border-radius:100px;
+  cursor:pointer;
+  transition: opacity 0.25s ease;
+}
+.cm-send:hover{ opacity:0.86; }
+.cm-send[disabled]{ opacity:0.5; cursor:default; }
+
+.cm-direct{
+  font-size:14px;
+  color: var(--muted);
+}
+.cm-direct a{ color: var(--ink); }
+
+.cm-note{
+  font-size:14.5px;
+  line-height:1.6;
+  margin-top:16px;
+  padding:12px 16px;
+  border-radius:12px;
+  display:none;
+}
+.cm-note.show{ display:block; }
+.cm-note.ok{ background: var(--pill); color: var(--ink); }
+.cm-note.err{ background: var(--pill); color: var(--ink); }
+
+@media (max-width: 560px){
+  .cm-panel{ padding:28px 22px; border-radius:20px; }
+  .cm-title{ font-size:23px; }
+}
+@media (prefers-reduced-motion: reduce){
+  .cm-panel{ animation:none; }
+}
 </style>
 </head>
 <body>
@@ -290,7 +436,7 @@ nav.primary a.active{
     </div>
 
     <div class="sidebar-footer">
-      <a class="say-hello" href="mailto:hello@jaazbiakhan.com">Say hello!</a>
+      <a class="say-hello" href="mailto:kjaazbia@gmail.com">Say hello!</a>
       <div class="social-row">
         <a href="https://www.linkedin.com/in/jaazbia-khan/" target="_blank" rel="noopener" aria-label="LinkedIn">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.38-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.07 2.07 0 1 1 0-4.13 2.07 2.07 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45z"/></svg>
@@ -345,6 +491,141 @@ nav.primary a.active{
   </main>
 
 </div>
+
+
+<div class="cm-backdrop" id="contactModal" role="dialog" aria-modal="true" aria-labelledby="cmTitle">
+  <div class="cm-panel">
+    <div class="cm-head">
+      <h2 class="cm-title" id="cmTitle">Say hello</h2>
+      <button class="cm-close" type="button" aria-label="Close">&times;</button>
+    </div>
+    <p class="cm-sub">Tell me about your project, your team, or just say hi. I read everything.</p>
+
+    <form id="cmForm" novalidate>
+      <div class="cm-field">
+        <label for="cmName">Your name</label>
+        <input type="text" id="cmName" name="name" autocomplete="name" required>
+      </div>
+      <div class="cm-field">
+        <label for="cmEmail">Your email</label>
+        <input type="email" id="cmEmail" name="email" autocomplete="email" required>
+      </div>
+      <div class="cm-field">
+        <label for="cmMessage">Message</label>
+        <textarea id="cmMessage" name="message" required></textarea>
+      </div>
+
+      <div class="cm-actions">
+        <button class="cm-send" type="submit">Send message</button>
+        <span class="cm-direct">or email <a href="mailto:kjaazbia@gmail.com">kjaazbia@gmail.com</a></span>
+      </div>
+      <p class="cm-note" id="cmNote" role="status"></p>
+    </form>
+  </div>
+</div>
+
+<script>
+(function(){
+  /* ------------------------------------------------------------------
+     TO RECEIVE MESSAGES IN YOUR INBOX:
+     1. Sign up free at https://formspree.io (or https://web3forms.com)
+     2. Create a form pointed at kjaazbia@gmail.com
+     3. Paste the endpoint URL they give you between the quotes below.
+     Until then, Send falls back to opening the visitor's mail app
+     with the message already written out.
+  ------------------------------------------------------------------ */
+  var FORM_ENDPOINT = "https://formspree.io/f/mvkpqggz";
+
+  var TO = "kjaazbia@gmail.com";
+  var modal = document.getElementById('contactModal');
+  if(!modal) return;
+  var form = document.getElementById('cmForm');
+  var note = document.getElementById('cmNote');
+  var sendBtn = form.querySelector('.cm-send');
+  var lastFocus = null;
+
+  function setNote(msg, kind){
+    note.textContent = msg;
+    note.className = 'cm-note show ' + (kind || 'ok');
+  }
+  function clearNote(){ note.textContent = ''; note.className = 'cm-note'; }
+
+  function open(e){
+    if(e) e.preventDefault();
+    lastFocus = document.activeElement;
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    setTimeout(function(){ document.getElementById('cmName').focus(); }, 40);
+  }
+  function close(){
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+    clearNote();
+    if(lastFocus) lastFocus.focus();
+  }
+
+  /* every mailto link on the page opens the overlay instead */
+  var triggers = document.querySelectorAll('a[href^="mailto:"]');
+  for(var i=0;i<triggers.length;i++){
+    if(triggers[i].closest('.cm-panel')) continue;
+    triggers[i].addEventListener('click', open);
+  }
+
+  modal.querySelector('.cm-close').addEventListener('click', close);
+  modal.addEventListener('click', function(e){ if(e.target === modal) close(); });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && modal.classList.contains('open')) close();
+  });
+
+  function mailtoFallback(name, email, message){
+    var subject = 'Portfolio enquiry from ' + name;
+    var body = message + '\n\n\u2014 ' + name + '\n' + email;
+    window.location.href = 'mailto:' + TO +
+      '?subject=' + encodeURIComponent(subject) +
+      '&body=' + encodeURIComponent(body);
+    setNote('Opening your mail app with the message ready to send.', 'ok');
+  }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var name = document.getElementById('cmName').value.trim();
+    var email = document.getElementById('cmEmail').value.trim();
+    var message = document.getElementById('cmMessage').value.trim();
+
+    if(!name || !email || !message){
+      setNote('Please fill in your name, email, and a message.', 'err');
+      return;
+    }
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){
+      setNote('That email address does not look right.', 'err');
+      return;
+    }
+
+    if(!FORM_ENDPOINT){
+      mailtoFallback(name, email, message);
+      return;
+    }
+
+    sendBtn.disabled = true;
+    sendBtn.textContent = 'Sending...';
+    fetch(FORM_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: name, email: email, message: message })
+    }).then(function(res){
+      if(!res.ok) throw new Error('bad response');
+      form.reset();
+      setNote('Thank you \u2014 your message is on its way. I will get back to you soon.', 'ok');
+    }).catch(function(){
+      setNote('That did not send. Opening your mail app instead.', 'err');
+      mailtoFallback(name, email, message);
+    }).then(function(){
+      sendBtn.disabled = false;
+      sendBtn.textContent = 'Send message';
+    });
+  });
+})();
+</script>
 
 </body>
 </html>
