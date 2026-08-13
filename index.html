@@ -486,7 +486,14 @@ nav.primary a.active{
   font-size:14px;
   color: var(--muted);
 }
-.cm-direct a{ color: var(--ink); }
+.cm-direct a{
+  color: var(--ink);
+  font-weight:500;
+  text-decoration:underline;
+  text-underline-offset:3px;
+  text-decoration-thickness:1px;
+}
+.cm-direct a:hover{ opacity:0.7; }
 
 .cm-note{
   font-size:14.5px;
@@ -499,6 +506,53 @@ nav.primary a.active{
 .cm-note.show{ display:block; }
 .cm-note.ok{ background: var(--pill); color: var(--ink); }
 .cm-note.err{ background: var(--pill); color: var(--ink); }
+
+
+.cm-success{
+  display:none;
+  text-align:center;
+  padding:14px 0 6px;
+}
+.cm-success.show{ display:block; }
+.cm-tick{
+  width:64px; height:64px;
+  border-radius:50%;
+  background: var(--ink);
+  color: var(--cream);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:30px;
+  line-height:1;
+  margin:0 auto 22px;
+}
+.cm-success h3{
+  font-family:'Playfair Display', serif;
+  font-weight:700;
+  font-size:26px;
+  color: var(--ink);
+  margin-bottom:12px;
+}
+.cm-success p{
+  font-size:16px;
+  line-height:1.6;
+  color: var(--muted);
+  max-width:34ch;
+  margin:0 auto 26px;
+}
+.cm-done{
+  font-family:'Inter', sans-serif;
+  font-weight:500;
+  font-size:16px;
+  background: var(--ink);
+  color: var(--cream);
+  border:none;
+  padding:14px 34px;
+  border-radius:100px;
+  cursor:pointer;
+  transition: opacity 0.25s ease;
+}
+.cm-done:hover{ opacity:0.86; }
 
 @media (max-width: 560px){
   .cm-panel{ padding:28px 22px; border-radius:20px; }
@@ -652,6 +706,13 @@ nav.primary a.active{
       </div>
       <p class="cm-note" id="cmNote" role="status"></p>
     </form>
+
+    <div class="cm-success" id="cmSuccess">
+      <div class="cm-tick" aria-hidden="true">&#10003;</div>
+      <h3>Message sent</h3>
+      <p>Thank you for reaching out. Your message has landed in my inbox and I'll get back to you soon.</p>
+      <button class="cm-done" type="button" id="cmDone">Close</button>
+    </div>
   </div>
 </div>
 
@@ -692,6 +753,7 @@ nav.primary a.active{
     modal.classList.remove('open');
     document.body.style.overflow = '';
     clearNote();
+    showForm();
     if(lastFocus) lastFocus.focus();
   }
 
@@ -708,14 +770,27 @@ nav.primary a.active{
     if(e.key === 'Escape' && modal.classList.contains('open')) close();
   });
 
-  function mailtoFallback(name, email, message){
-    var subject = 'Portfolio enquiry from ' + name;
-    var body = message + '\n\n\u2014 ' + name + '\n' + email;
-    window.location.href = 'mailto:' + TO +
-      '?subject=' + encodeURIComponent(subject) +
-      '&body=' + encodeURIComponent(body);
-    setNote('Opening your mail app with the message ready to send.', 'ok');
+  var sub = modal.querySelector('.cm-sub');
+  var success = document.getElementById('cmSuccess');
+  var title = document.getElementById('cmTitle');
+
+  function showSuccess(){
+    clearNote();
+    form.style.display = 'none';
+    if(sub) sub.style.display = 'none';
+    title.style.display = 'none';
+    success.classList.add('show');
+    modal.querySelector('.cm-panel').scrollTop = 0;
+    document.getElementById('cmDone').focus();
   }
+  function showForm(){
+    form.style.display = '';
+    if(sub) sub.style.display = '';
+    title.style.display = '';
+    success.classList.remove('show');
+  }
+
+  document.getElementById('cmDone').addEventListener('click', close);
 
   form.addEventListener('submit', function(e){
     e.preventDefault();
@@ -732,11 +807,6 @@ nav.primary a.active{
       return;
     }
 
-    if(!FORM_ENDPOINT){
-      mailtoFallback(name, email, message);
-      return;
-    }
-
     sendBtn.disabled = true;
     sendBtn.textContent = 'Sending...';
     fetch(FORM_ENDPOINT, {
@@ -746,10 +816,9 @@ nav.primary a.active{
     }).then(function(res){
       if(!res.ok) throw new Error('bad response');
       form.reset();
-      setNote('Thank you \u2014 your message is on its way. I will get back to you soon.', 'ok');
+      showSuccess();
     }).catch(function(){
-      setNote('That did not send. Opening your mail app instead.', 'err');
-      mailtoFallback(name, email, message);
+      setNote('Sorry, that did not send. Please email ' + TO + ' directly.', 'err');
     }).then(function(){
       sendBtn.disabled = false;
       sendBtn.textContent = 'Send message';
